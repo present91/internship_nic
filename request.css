@@ -1,0 +1,42 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.hdr {
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 5px;
+}
+.form-container {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+table {
+    border-collapse: collapse;
+    width: 500px;
+    font-size: 18px;
+}
+th, td {
+    border: 1px solid black;
+    padding: 12px;
+    text-align: left;
+}
+input[type="text"] {
+    width: 95%;
+    padding: 6px;
+    font-size: 16px;
+}
+.submit {
+    background-color: rgba(0, 0, 0, 0.888);
+    border: none;
+    font-size: 15px;
+    margin-top: 20px;
+    padding: 10px 20px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee Travel Request</title>
+  <link rel="stylesheet" href="details.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 30px;
+    }
+
+    .hdr {
+      text-align: center;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 30px;
+      padding-bottom: 10px;
+    }
+
+    .container {
+      width: 80%;
+      margin: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 20px 0;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px 15px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      width: 30%;
+    }
+
+    input[type="text"], input[type="date"], input[type="time"], select {
+      width: 90%;
+      padding: 6px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+    }
+
+    .print-btn {
+      margin: 20px auto;
+      display: block;
+      padding: 10px 20px;
+      font-weight: bold;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .letter {
+      display: none;
+      margin-top: 50px;
+      font-size: 16px;
+    }
+
+    .letter h2 {
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .letter table {
+      width: 100%;
+      border: none;
+      box-shadow: none;
+    }
+
+    .letter td, .letter th {
+      border: none;
+      padding: 8px;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      .letter, .letter * {
+        visibility: visible;
+      }
+
+      .letter {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hdr"><h2>Employee Information</h2></header>
+  <div class="container">
+    <table id="details-table"></table>
+
+    <table class="second-table">
+      <tr>
+        <th>From</th>
+        <td><input type="text" id="from_place"></td>
+      </tr>
+      <tr>
+        <th>To</th>
+        <td><input type="text" id="to_place"></td>
+      </tr>
+      <tr>
+        <th>Date of Travel (DD/MM/YY)</th>
+        <td><input type="date" id="travel_date"></td>
+      </tr>
+      <tr>
+        <th>Time</th>
+        <td><input type="time" id="travel_time"></td>
+      </tr>
+      <tr>
+        <th>Day of the Week</th>
+        <td><input type="text" id="day_of_week" placeholder="e.g. Monday"></td>
+      </tr>
+      <tr>
+        <th>Mode of Travel</th>
+        <td>
+          <select id="mode_of_travel">
+            <option value="">Select Mode</option>
+            <option value="Flight">Flight</option>
+            <option value="Train">Train</option>
+            <option value="Bus">Bus</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th>Holiday (if any)</th>
+        <td><input type="text" id="holiday" placeholder="Optional"></td>
+      </tr>
+      <tr>
+        <th>IC No.</th>
+        <td><input type="text" id="ic_no"></td>
+      </tr>
+      <tr>
+        <th>Class Fare</th>
+        <td>
+          <select id="class_fare">
+            <option value="">Select Class</option>
+            <option value="Economy">Economy</option>
+            <option value="Business">Business</option>
+          </select>
+        </td>
+      </tr>
+    </table>
+
+    <div class="button-group">
+        <button class="print-btn" onclick="generateLetter()">Print</button>
+        <button class="print-btn" onclick="location.href='request.html'">Back</button>
+    </div>      
+
+    <div class="letter" id="letter">
+      <h3>Government of India</h3>
+      <p style="text-align: center;">
+        Ministry of Electronics and Information Technology<br>
+        National Informatics Centre<br>
+        A-Block, CGO Complex, Lodhi Road, New Delhi - 110003
+      </p>
+      <br>
+      <p><strong>Subject:</strong> Issue of <span id="letter_mode"></span> ticket in respect of <span id="letter_name"></span> (<span id="letter_email"></span>)</p>
+
+      <br>
+      <table>
+        <tr><th>From</th><td id="letter_from"></td></tr>
+        <tr><th>To</th><td id="letter_to"></td></tr>
+        <tr><th>Date</th><td id="letter_date"></td></tr>
+        <tr><th>Flight No. / Time</th><td id="letter_ic_time"></td></tr>
+        <tr><th>Contact No.</th><td id="letter_contact"></td></tr>
+        <tr><th>Class</th><td id="letter_class"></td></tr>
+        <tr><th>Residential Address</th><td id="letter_address"></td></tr>        
+      </table>
+      <p style="margin-top: 30px; text-align:left;">
+        You are requested to arrange to send the below confirmed ticket to this office along with a copy to the individual officer at his/her given email ID (<strong><span id="letter_email_repeat"></span></strong>) immediately.
+      </p>
+      <p style="text-align:left;">
+        For further details or inquiry, please contact, NIC Protocol Section
+      </p>
+      <p style="text-align:left; margin-below:50px;">
+        Thank you.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("empDetails"));
+    const table = document.getElementById("details-table");
+
+    if (!data) {
+      document.body.innerHTML = "<p style='text-align:center;'>No data found. Please go back and try again.</p>";
+    } else {
+      const labels = {
+        code: "Employee Code",
+        emp_name: "Employee Name",
+        email: "Email",
+        designation: "Designation",
+        res_add: "Residential Address",
+        basic_pay: "Basic Pay",
+        place: "Place"
+      };
+
+      for (const key in labels) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<th>${labels[key]}</th><td>${data[key] ?? '-'}</td>`;
+        table.appendChild(row);
+      }
+
+      const mobRow = document.createElement("tr");
+      mobRow.innerHTML = `<th>Mobile Number</th><td><input type="text" id="mob_no" placeholder="Enter Mobile Number"></td>`;
+      table.appendChild(mobRow);
+
+      const telRow = document.createElement("tr");
+      telRow.innerHTML = `<th>Telephone</th><td><input type="text" id="telephone" placeholder="Enter Telephone"></td>`;
+      table.appendChild(telRow);
+    }
+
+    function generateLetter() {
+        document.getElementById("letter_mode").textContent = document.getElementById("mode_of_travel").value;
+        document.getElementById("letter_name").textContent = data.emp_name;
+        document.getElementById("letter_email").textContent = data.email;
+        document.getElementById("letter_from").textContent = document.getElementById("from_place").value;
+        document.getElementById("letter_to").textContent = document.getElementById("to_place").value;
+        document.getElementById("letter_date").textContent = document.getElementById("travel_date").value;
+        document.getElementById("letter_ic_time").textContent =
+            `${document.getElementById("ic_no").value} / ${document.getElementById("travel_time").value}`;
+        document.getElementById("letter_contact").textContent = document.getElementById("mob_no").value;
+        document.getElementById("letter_class").textContent = document.getElementById("class_fare").value;
+        document.getElementById("letter_address").textContent = data.res_add;
+        document.getElementById("letter_email_repeat").textContent = data.email;
+        window.print();
+    }
+
+  </script>
+</body>
+</html>

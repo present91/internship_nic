@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-Tour</title>
+    <link rel="stylesheet" href="request.css">
+</head>
+<body>
+    <header class="hdr"><h2>Request Interface</h2></header>
+
+    <div class="form-container">
+        <p style="font-weight: bold; font-size: 20px;">Enter Employee Code</p>
+        <form>
+            <table>
+                <tr>
+                    <th>Employee Code</th>
+                    <td><input id="code" type="text" name="code"></td>
+                </tr>
+            </table>
+            <button type="submit" class="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        document.querySelector("form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const code = document.getElementById("code").value.trim();
+            if (!code) {
+                alert("Please enter a code.");
+                return;
+            }
+
+            fetch("http://localhost:3000/check-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: parseInt(code, 10) })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Code not found");
+                return response.json();
+            })
+            .then(result => {
+                localStorage.setItem("empDetails", JSON.stringify(result.data));
+                window.location.href = "details.html";
+            })
+            .catch(() => {
+                alert("Code not found or error occurred.");
+            });
+        });
+    </script>
+</body>
+</html>
