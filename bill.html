@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forms</title>
+    <link rel="stylesheet" href="billcss.css">
+</head>
+<body>
+<header class="w"><h1>Airline ticketing form entry</h1></header>
+
+<form onsubmit="return handleSubmitData()">
+    <div class="form-row">
+        <label for="gst">GST Number:</label>
+        <input type="text" id="gst" name="GST">
+        </div>
+
+        <div class="form-row">
+        <label for="bill">Bill Number:</label>
+        <input type="text" id="bill" name="Bill">
+        </div>
+
+        <div class="form-row">
+        <label for="issue_date">Ticket Issue Date:</label>
+        <input type="date" id="issue_date" name="Issue date">
+        </div>
+
+        <div class="form-row">
+        <label for="sap_client">SAP Client Code:</label>
+        <input type="text" id="sap_client" name="SAP client">
+        </div>
+
+        <div class="form-row">
+        <label for="client_code">Client Code:</label>
+        <input type="text" id="client_code" name="Client code">
+        </div>
+
+        <div class="form-row">
+        <label for="booked_by">Booked By:</label>
+        <input type="text" id="booked_by" name="Booked by">
+        </div>
+
+        <div class="form-row">
+        <label for="requested_by">Requested By:</label>
+        <input type="text" id="requested_by" name="Requested by">
+        </div>
+
+        <div class="form-row">
+        <label for="airline">Airline:</label>
+        <select id="airline" name="Airline">
+            <option value="">--Select--</option>
+            <option value="airindia">Air India</option>
+            <option value="indigo">Indigo</option>
+            <option value="spicejet">SpiceJet</option>
+            <option value="airasia">Air Asia</option>
+        </select>
+        </div>
+
+        <div class="form-row">
+        <label for="passenger">Passenger:</label>
+        <input type="text" id="passenger" name="Passenger">
+        </div>
+
+        <div class="form-row">
+        <label for="ticket_no">Ticket Number:</label>
+        <input type="text" id="ticket_no" name="Ticket number">
+        </div>
+
+        <div class="form-row">
+        <label for="flight_no">Flight Number:</label>
+        <input type="text" id="flight_no" name="Flight No">
+        </div>
+
+        <div class="form-row">
+        <label for="travel_date">Travel Date:</label>
+        <input type="date" id="travel_date" name="Travel Date">
+        </div>
+
+        <div class="form-row">
+        <label for="sectors">Sectors:</label>
+        <input type="text" id="sectors" name="Sectors">
+        </div>
+
+        <div class="form-row">
+        <label for="travel_class">Travel Class:</label>
+        <select id="travel_class" name="Travel class">
+            <option value="">--Select--</option>
+            <option value="economy">Economy</option>
+            <option value="business">Business</option>
+        </select>
+        </div>
+
+        <div class="form-row">
+        <label for="gross_fare">Gross Fare:</label>
+        <input type="text" id="gross_fare" name="Gross fare">
+        </div>
+
+        <div class="form-row">
+        <button class="btn" type="submit" style="width: 150px; padding:10px 15px 10px 15px;">Submit</button>
+        <button class="btn" type="button" onclick="updateData()" style="width: 150px; padding:10px 15px 10px 15px;">Update</button>
+        </div>
+
+</form>
+
+<div id="confirmModal" class="modal">
+  <div class="modal-content">
+    <p>Are you sure you want to submit the form?</p>
+    <button id="confirmSubmit">Submit</button>
+    <button id="cancelSubmit">Cancel</button>
+  </div>
+</div>
+
+<script>
+    function isAlphaNumeric(str) 
+    {
+        return /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]+$/.test(str);
+    }
+
+    function isNumeric(str) {
+        return /^[0-9]+$/.test(str);
+    }
+
+    function validateForm() {
+        const requiredFields = [
+            'gst', 'bill', 'issue_date', 'sap_client', 'client_code',
+            'booked_by', 'requested_by', 'airline', 'passenger',
+            'ticket_no', 'flight_no', 'travel_date', 'sectors',
+            'travel_class', 'gross_fare' ];
+        const alphanum = ['gst', 'bill', 'client_code', 'ticket_no'];
+        const num = ['sap_client', 'flight_no', 'gross_fare'];
+
+        for (let field of requiredFields) {
+            const input = document.getElementById(field);
+            const label = input.previousElementSibling.textContent;
+            if (!input.value.trim()) {
+                alert("Please fill in the " + label);
+                input.focus();
+                return false;
+            }
+            if (alphanum.includes(field) && !isAlphaNumeric(input.value)) {
+                alert("Please enter the " + label + " in proper format (alphanumeric).");
+                input.focus();
+                return false;
+            }
+            if (num.includes(field) && !isNumeric(input.value)) {
+                alert("Please enter the " + label + " in proper format (numeric).");
+                input.focus();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function handleSubmitData() {
+        if (!validateForm()) return false;
+        document.getElementById("confirmModal").style.display = "block";
+        return false;
+    }
+
+    function submitData() {
+        const fields = [
+            'gst', 'bill', 'issue_date', 'sap_client', 'client_code',
+            'booked_by', 'requested_by', 'airline', 'passenger',
+            'ticket_no', 'flight_no', 'travel_date', 'sectors',
+            'travel_class', 'gross_fare'
+        ];
+        const data = {};
+        const params = new URLSearchParams();
+        for (let field of fields) 
+        {
+            const value = document.getElementById(field).value;
+            data[field] = value;
+            params.append(field, value);
+        }
+        const win = window.open(`display.html?${params.toString()}`, '_blank');
+        fetch('http://localhost:3000/submit',{
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response => response.text())
+        .then(msg => {alert(msg);})
+        .catch(error => { console.error('Submission failed:', error);
+            alert('Form opened, but failed to submit to the server.');
+        });
+    }
+
+    document.getElementById("cancelSubmit").onclick = function () 
+    {
+        document.getElementById("confirmModal").style.display = "none";
+    };
+    document.getElementById("confirmSubmit").onclick = function () 
+    {
+        document.getElementById("confirmModal").style.display = "none";
+        submitData();
+    };
+
+    function updateData() 
+    {
+        const fields = [
+            'gst', 'bill', 'issue_date', 'sap_client', 'client_code',
+            'booked_by', 'requested_by', 'airline', 'passenger',
+            'ticket_no', 'flight_no', 'travel_date', 'sectors',
+            'travel_class', 'gross_fare'
+        ];
+        const data = {};
+        for (let field of fields) 
+        {
+            data[field] = document.getElementById(field).value;
+        }
+        if (!data['bill']) 
+        {
+            alert("Bill Number is required for updating ticket info.");
+            return;
+        }
+        fetch('http://localhost:3000/update', 
+        {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(res => res.text())
+        .then(msg => {
+            alert(msg);
+        })
+        .catch(err => {console.error('Update failed:', err);
+            alert('Failed to update ticket info.');
+        });
+    }
+</script>
+</body>
+</html>
